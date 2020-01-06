@@ -87,11 +87,43 @@ func router(uAPI userAPI) *gin.Engine {
 	// gin.New() returns a new blank Engine instance without any middleware attached.
 	r := gin.Default()
 
+	// Adds middlewares
+	r.Use(CORS(), Common())
+
 	// Set the /login endpoint using the
 	// userAPI.login function as handler
-	r.GET("/login", uAPI.login)
+	r.POST("/login", uAPI.login)
 	return r
 }
+
+/*------Middlewares----*/
+
+func CORS() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// Pre-flght
+		switch c.Request.Method {
+		case "OPTIONS":
+			c.Header("Access-Control-Allow-Headers", "Authorization, Content-Type")
+			c.Header("Access-Control-Allow-Methods", "GET,POST,PATCH,DELETE")
+			c.Header("Access-Control-Max-Age", "86400")
+			c.Status(http.StatusOK)
+		}
+
+		c.Next()
+	}
+}
+
+func Common() gin.HandlerFunc {
+	return func(c *gin.Context) {
+		// CommonHeaders
+		c.Header("Content-Type", "application/json")
+		c.Header("Access-Control-Allow-Origin", "*")
+
+		c.Next()
+	}
+}
+
+/*------Middlewares----*/
 
 /*------User API------*/
 type userAPI struct {
@@ -105,6 +137,11 @@ func newUserAPI(u userService) userAPI {
 func (u *userAPI) login(c *gin.Context) {
 	creds := &creds{}
 	c.BindJSON(creds)
+
+	// TODO: Add auth service? or handle the login in the
+	// 		auth service, separate from the user handlers
+	// Needs a way a way to check the user credentials
+	// comparing the password hash
 
 	c.JSON(http.StatusOK, fmt.Sprintf("Logged in %s", creds.Username))
 }
