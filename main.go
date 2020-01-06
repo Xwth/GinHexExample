@@ -106,7 +106,7 @@ func (u *userAPI) login(c *gin.Context) {
 	creds := &creds{}
 	c.BindJSON(creds)
 
-	c.JSON(http.StatusOK, fmt.Sprintf("Logged in %s", creds.U	sername))
+	c.JSON(http.StatusOK, fmt.Sprintf("Logged in %s", creds.Username))
 }
 
 /*------User API------*/
